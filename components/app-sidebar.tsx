@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import type * as React from "react"
+import * as React from "react";
 import {
   Sidebar,
   SidebarContent,
@@ -13,8 +13,8 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarRail,
-} from "@/components/ui/sidebar"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+} from "@/components/ui/sidebar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,7 +22,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from "@/components/ui/dropdown-menu";
 import {
   Home,
   Camera,
@@ -37,13 +37,13 @@ import {
   MessageCircle,
   Newspaper,
   HelpCircle,
-} from "lucide-react"
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { useState } from "react"
-import { ProfileDialog } from "./profile-dialog"
-import { SettingsDialog } from "./settings-dialog"
-import { NotificationsDialog } from "@/components/notifications-dialog"
+} from "lucide-react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useState } from "react";
+import { ProfileDialog } from "./profile-dialog";
+import { SettingsDialog } from "./settings-dialog";
+import { NotificationsDialog } from "@/components/notifications-dialog";
 
 const data = {
   user: {
@@ -71,7 +71,7 @@ const data = {
     },
     {
       title: "Government Schemes",
-      url: "/dashboard/schemes",
+      url: "/dashboard/schemas",
       icon: FileText,
     },
   ],
@@ -97,38 +97,72 @@ const data = {
       icon: HelpCircle,
     },
   ],
-}
+};
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const pathname = usePathname()
-  const [showProfile, setShowProfile] = useState(false)
-  const [showSettings, setShowSettings] = useState(false)
-  const [showNotifications, setShowNotifications] = useState(false)
+  const pathname = usePathname();
+  const [showProfile, setShowProfile] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
+
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  const sidebarRef = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    const handleResize = () => {
+      if (sidebarRef.current) {
+        const width = sidebarRef.current.offsetWidth;
+        const newCollapsed = width < 100; // Adjust threshold as needed
+        if (newCollapsed !== isCollapsed) {
+          setIsCollapsed(newCollapsed);
+        }
+      }
+    };
+
+    handleResize(); // Initial check
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+    // eslint-disable-next-line
+  }, [isCollapsed]);
 
   return (
     <>
-      <Sidebar collapsible="icon" {...props}>
-        <SidebarHeader>
-          <div className="flex items-center space-x-2 px-2 py-2">
-            <Sprout className="h-8 w-8 text-green-600" />
-            <div className="flex flex-col">
-              <span className="text-lg font-bold text-green-800">Project Kisan</span>
-              <span className="text-xs text-muted-foreground">AI Farm Assistant</span>
-            </div>
-          </div>
+      <Sidebar
+        ref={sidebarRef}
+        collapsible="icon"
+        {...props}
+        className="sidebar transition-all duration-300 ease-in-out"
+      >
+        <SidebarHeader className="p-2 flex items-center justify-center">
+
+          <img
+            src="/sidebarlogo.png"
+            alt="Sidebar Logo"
+            className="h-8 w-8 object-contain"
+          />
+
+
         </SidebarHeader>
 
         <SidebarContent>
           <SidebarGroup>
-            <SidebarGroupLabel>Main Menu</SidebarGroupLabel>
+            <SidebarGroupLabel className="px-2 text-xs font-medium text-muted-foreground">
+              Main Menu
+            </SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
                 {data.navMain.map((item) => (
                   <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton asChild isActive={pathname === item.url}>
-                      <Link href={item.url}>
-                        <item.icon />
-                        <span>{item.title}</span>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={pathname === item.url}
+                      className="justify-start space-x-2 p-2 transition-all duration-300 ease-in-out"
+                    >
+                      <Link href={item.url} className="flex items-center space-x-2">
+                        <item.icon className="h-5 w-5" />
+                        <span className="truncate transition-all duration-300 ease-in-out">
+                          {item.title}
+                        </span>
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
@@ -138,15 +172,23 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           </SidebarGroup>
 
           <SidebarGroup>
-            <SidebarGroupLabel>Tools & Support</SidebarGroupLabel>
+            <SidebarGroupLabel className="px-2 text-xs font-medium text-muted-foreground">
+              Tools & Support
+            </SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
                 {data.navSecondary.map((item) => (
                   <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton asChild isActive={pathname === item.url}>
-                      <Link href={item.url}>
-                        <item.icon />
-                        <span>{item.title}</span>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={pathname === item.url}
+                      className="justify-start space-x-2 p-2 transition-all duration-300 ease-in-out"
+                    >
+                      <Link href={item.url} className="flex items-center space-x-2">
+                        <item.icon className="h-5 w-5" />
+                        <span className="truncate transition-all duration-300 ease-in-out">
+                          {item.title}
+                        </span>
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
@@ -163,15 +205,22 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 <DropdownMenuTrigger asChild>
                   <SidebarMenuButton
                     size="lg"
-                    className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+                    className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground justify-start space-x-2 p-2 transition-all duration-300 ease-in-out"
                   >
                     <Avatar className="h-8 w-8 rounded-lg">
-                      <AvatarImage src={data.user.avatar || "/placeholder.svg"} alt={data.user.name} />
-                      <AvatarFallback className="rounded-lg bg-green-100 text-green-700">RK</AvatarFallback>
+                      <AvatarImage
+                        src={data.user.avatar || "/placeholder.svg"}
+                        alt={data.user.name}
+                      />
+                      <AvatarFallback className="rounded-lg bg-green-100 text-green-700">
+                        RK
+                      </AvatarFallback>
                     </Avatar>
-                    <div className="grid flex-1 text-left text-sm leading-tight">
+                    <div className="grid flex-1 text-left text-sm leading-tight overflow-hidden">
                       <span className="truncate font-semibold">{data.user.name}</span>
-                      <span className="truncate text-xs text-muted-foreground">{data.user.location}</span>
+                      <span className="truncate text-xs text-muted-foreground">
+                        {data.user.location}
+                      </span>
                     </div>
                   </SidebarMenuButton>
                 </DropdownMenuTrigger>
@@ -184,12 +233,19 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   <DropdownMenuLabel className="p-0 font-normal">
                     <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                       <Avatar className="h-8 w-8 rounded-lg">
-                        <AvatarImage src={data.user.avatar || "/placeholder.svg"} alt={data.user.name} />
-                        <AvatarFallback className="rounded-lg bg-green-100 text-green-700">RK</AvatarFallback>
+                        <AvatarImage
+                          src={data.user.avatar || "/placeholder.svg"}
+                          alt={data.user.name}
+                        />
+                        <AvatarFallback className="rounded-lg bg-green-100 text-green-700">
+                          RK
+                        </AvatarFallback>
                       </Avatar>
                       <div className="grid flex-1 text-left text-sm leading-tight">
                         <span className="truncate font-semibold">{data.user.name}</span>
-                        <span className="truncate text-xs text-muted-foreground">{data.user.email}</span>
+                        <span className="truncate text-xs text-muted-foreground">
+                          {data.user.email}
+                        </span>
                       </div>
                     </div>
                   </DropdownMenuLabel>
@@ -219,9 +275,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <SidebarRail />
       </Sidebar>
 
+      {/* Dialogs */}
       <ProfileDialog open={showProfile} onOpenChange={setShowProfile} />
       <SettingsDialog open={showSettings} onOpenChange={setShowSettings} />
       <NotificationsDialog open={showNotifications} onOpenChange={setShowNotifications} />
     </>
-  )
+  );
 }

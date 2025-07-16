@@ -92,3 +92,54 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+.sidebar {
+  transition: width 0.3s ease-in-out;
+}
+
+/* Hide text when collapsed to icon mode */
+.sidebar[data-state="collapsed"] .sidebar-menu-button span,
+.sidebar[data-state="collapsed"] .sidebar-group-label,
+.sidebar[data-state="collapsed"] .sidebar-footer .truncate {
+  display: none;
+}
+
+/* Adjust icon size and spacing in collapsed state */
+.sidebar[data-state="collapsed"] .sidebar-menu-button {
+  justify-content: center;
+  padding: 0.5rem;
+}
+
+.sidebar[data-state="collapsed"] .sidebar-menu-button .lucide-icon {
+  margin: 0;
+}
+
+/* Ensure main content adjusts when sidebar collapses */
+main {
+  transition: margin-left 0.3s ease-in-out;
+  margin-left: 240px; /* Default sidebar width */
+}
+
+.sidebar[data-state="collapsed"] + main {
+  margin-left: 64px; /* Collapsed sidebar width */
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .sidebar {
+    display: none;
+  }
+  main {
+    margin-left: 0;
+  }
+}
+
+.quick-actions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 1.5rem; /* 24px */
+}
+
+.quick-actions-grid > * {
+  height: 100%;
+}
