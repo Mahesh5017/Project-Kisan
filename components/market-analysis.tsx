@@ -1,11 +1,223 @@
+// "use client"
+
+// import { useState, useEffect } from "react"
+// import { Button } from "@/components/ui/button"
+// import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+// import { Badge } from "@/components/ui/badge"
+// import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+// import { TrendingUp, TrendingDown, Minus, Search, MapPin, Calendar } from "lucide-react"
+
+// interface MarketData {
+//   crop: string
+//   currentPrice: number
+//   previousPrice: number
+//   trend: "up" | "down" | "stable"
+//   change: number
+//   market: string
+//   date: string
+//   recommendation: string
+// }
+
+// export function MarketAnalysis() {
+//   const [selectedCrop, setSelectedCrop] = useState("")
+//   const [selectedMarket, setSelectedMarket] = useState("")
+//   const [marketData, setMarketData] = useState<MarketData[]>([])
+//   const [isLoading, setIsLoading] = useState(false)
+
+//   const crops = ["Tomato", "Onion", "Potato", "Wheat", "Rice", "Cotton", "Sugarcane", "Maize", "Soybean", "Groundnut"]
+
+//   const markets = [
+//     "Local Market",
+//     "Mandi - Delhi",
+//     "Mandi - Mumbai",
+//     "Mandi - Bangalore",
+//     "Mandi - Chennai",
+//     "Mandi - Kolkata",
+//     "Wholesale Market",
+//   ]
+
+//   const fetchMarketData = async () => {
+//     setIsLoading(true)
+
+//     // Simulate API call
+//     setTimeout(() => {
+//       const mockData: MarketData[] = [
+//         {
+//           crop: "Tomato",
+//           currentPrice: 28,
+//           previousPrice: 24,
+//           trend: "up",
+//           change: 16.7,
+//           market: "Local Market",
+//           date: "Today",
+//           recommendation: "Good time to sell - prices are rising due to reduced supply",
+//         },
+//         {
+//           crop: "Onion",
+//           currentPrice: 22,
+//           previousPrice: 25,
+//           trend: "down",
+//           change: -12,
+//           market: "Mandi - Delhi",
+//           date: "Today",
+//           recommendation: "Hold if possible - prices expected to recover next week",
+//         },
+//         {
+//           crop: "Potato",
+//           currentPrice: 18,
+//           previousPrice: 18,
+//           trend: "stable",
+//           change: 0,
+//           market: "Wholesale Market",
+//           date: "Today",
+//           recommendation: "Stable market - sell based on your storage capacity",
+//         },
+//       ]
+
+//       setMarketData(mockData)
+//       setIsLoading(false)
+//     }, 1500)
+//   }
+
+//   useEffect(() => {
+//     fetchMarketData()
+//   }, [])
+
+//   const getTrendIcon = (trend: string) => {
+//     switch (trend) {
+//       case "up":
+//         return <TrendingUp className="h-4 w-4 text-green-600" />
+//       case "down":
+//         return <TrendingDown className="h-4 w-4 text-red-600" />
+//       default:
+//         return <Minus className="h-4 w-4 text-gray-600" />
+//     }
+//   }
+
+//   const getTrendColor = (trend: string) => {
+//     switch (trend) {
+//       case "up":
+//         return "text-green-600"
+//       case "down":
+//         return "text-red-600"
+//       default:
+//         return "text-gray-600"
+//     }
+//   }
+
+//   return (
+//     <Card className="h-fit">
+//       <CardHeader>
+//         <CardTitle className="flex items-center space-x-2">
+//           <TrendingUp className="h-6 w-6 text-blue-600" />
+//           <span>Market Analysis</span>
+//         </CardTitle>
+//         <CardDescription>Get real-time market prices and trends to make informed selling decisions</CardDescription>
+//       </CardHeader>
+
+//       <CardContent className="space-y-6">
+//         {/* Search Filters */}
+//         <div className="space-y-4">
+//           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+//             <Select value={selectedCrop} onValueChange={setSelectedCrop}>
+//               <SelectTrigger>
+//                 <SelectValue placeholder="Select crop" />
+//               </SelectTrigger>
+//               <SelectContent>
+//                 {crops.map((crop) => (
+//                   <SelectItem key={crop} value={crop.toLowerCase()}>
+//                     {crop}
+//                   </SelectItem>
+//                 ))}
+//               </SelectContent>
+//             </Select>
+
+//             <Select value={selectedMarket} onValueChange={setSelectedMarket}>
+//               <SelectTrigger>
+//                 <SelectValue placeholder="Select market" />
+//               </SelectTrigger>
+//               <SelectContent>
+//                 {markets.map((market) => (
+//                   <SelectItem key={market} value={market.toLowerCase()}>
+//                     {market}
+//                   </SelectItem>
+//                 ))}
+//               </SelectContent>
+//             </Select>
+//           </div>
+
+//           <Button onClick={fetchMarketData} disabled={isLoading} className="w-full bg-blue-600 hover:bg-blue-700">
+//             <Search className="mr-2 h-4 w-4" />
+//             {isLoading ? "Fetching Prices..." : "Get Latest Prices"}
+//           </Button>
+//         </div>
+
+//         {/* Market Data */}
+//         <div className="space-y-4">
+//           {marketData.map((data, index) => (
+//             <div key={index} className="border rounded-lg p-4 space-y-3">
+//               <div className="flex items-center justify-between">
+//                 <div className="flex items-center space-x-2">
+//                   <h3 className="font-semibold text-lg">{data.crop}</h3>
+//                   <Badge variant="outline" className="text-xs">
+//                     <MapPin className="mr-1 h-3 w-3" />
+//                     {data.market}
+//                   </Badge>
+//                 </div>
+//                 <div className="flex items-center space-x-1">
+//                   <Calendar className="h-4 w-4 text-gray-500" />
+//                   <span className="text-sm text-gray-500">{data.date}</span>
+//                 </div>
+//               </div>
+
+//               <div className="flex items-center justify-between">
+//                 <div>
+//                   <div className="text-2xl font-bold text-gray-900">₹{data.currentPrice}/kg</div>
+//                   <div className="text-sm text-gray-500">Previous: ₹{data.previousPrice}/kg</div>
+//                 </div>
+
+//                 <div className={`flex items-center space-x-1 ${getTrendColor(data.trend)}`}>
+//                   {getTrendIcon(data.trend)}
+//                   <span className="font-semibold">
+//                     {data.change > 0 ? "+" : ""}
+//                     {data.change}%
+//                   </span>
+//                 </div>
+//               </div>
+
+//               <div className="bg-blue-50 p-3 rounded-lg border border-blue-200">
+//                 <h4 className="font-semibold text-blue-800 mb-1">💡 Recommendation:</h4>
+//                 <p className="text-sm text-blue-700">{data.recommendation}</p>
+//               </div>
+//             </div>
+//           ))}
+//         </div>
+
+//         {/* Quick Voice Query */}
+//         <div className="bg-gray-50 p-4 rounded-lg border">
+//           <h4 className="font-semibold text-gray-700 mb-2">Quick Voice Queries:</h4>
+//           <div className="text-sm text-gray-600 space-y-1">
+//             <div>• "What's the price of tomatoes today?"</div>
+//             <div>• "Show me onion prices in Delhi mandi"</div>
+//             <div>• "Compare wheat prices across markets"</div>
+//           </div>
+//         </div>
+//       </CardContent>
+//     </Card>
+//   )
+// }
+
+
+
 "use client"
 
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { TrendingUp, TrendingDown, Minus, Search, MapPin, Calendar, AlertCircle, BarChart3 } from "lucide-react"
+import { TrendingUp, TrendingDown, Minus, Search, MapPin, Calendar } from "lucide-react"
+import axios from 'axios'; // Ensure axios is installed: npm install axios
 
 // Define MarketData interface based on actual API response
 interface MarketData {
@@ -108,153 +320,48 @@ export function MarketAnalysis() {
     }
 
     setIsLoading(true)
-    setError(null)
-    
-    const queryParams = new URLSearchParams()
-    queryParams.append('api-key', '579b464db66ec23bdd000001cdc3b564546246a772a26393094f5645')
-    queryParams.append('format', 'json')
-    queryParams.append('offset', '0')
-    queryParams.append('limit', '1000')
-
-    // Add filters if selected
-    if (selectedCrop) {
-      queryParams.append('filters[commodity]', selectedCrop)
-    }
-    if (selectedState) {
-      queryParams.append('filters[state]', selectedState)
-    }
-
-    const url = `https://api.data.gov.in/resource/9ef84268-d588-465a-a308-a864a43d0070?${queryParams.toString()}`
+    const apiKey = '579b464db66ec23bdd000001db776d4b44e347b25989aca343603b37'; // Replace with env variable in production
+    const url = 'https://www.data.gov.in/resource/9ef84268-d588-465a-a308-a864a43d0070'; // Replace with actual API URL
 
     try {
-      const response = await fetch(url, {
+      const response = await axios.get(url, {
         headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
-        }
-      })
-      
-      if (!response.ok) {
-        throw new Error(`API request failed with status ${response.status}: ${response.statusText}`)
-      }
-      
-      const rawData = await response.json()
+          'api-key': apiKey,
+        },
+      });
 
-      // Log the raw data to debug the structure
-      console.log('Raw API Response:', rawData)
+      // Transform API response to match MarketData interface (adjust based on actual API response structure)
+      const transformedData = response.data.map((item: any) => ({
+        crop: item.crop || "Unknown",
+        currentPrice: item.current_price || 0,
+        previousPrice: item.previous_price || 0,
+        trend: item.change > 0 ? "up" : item.change < 0 ? "down" : "stable",
+        change: item.change || 0,
+        market: item.market || "Unknown",
+        date: item.date || "Today",
+        recommendation: item.recommendation || "No recommendation available",
+      }));
 
-      // Check if the response has the expected structure
-      if (!rawData || typeof rawData !== 'object') {
-        throw new Error('Invalid API response format')
-      }
-
-      // Handle API response structure based on actual response
-      let records = []
-      if (rawData.records && Array.isArray(rawData.records)) {
-        records = rawData.records
-      } else {
-        console.log('Unexpected response structure:', rawData)
-        throw new Error('No records found in API response')
-      }
-
-      console.log('Records found:', records.length)
-
-      // Map API response to MarketData based on actual structure
-      const data: MarketData[] = records.map((item: any, index: number) => {
-        console.log(`Mapping item ${index}:`, item)
-        
-        // Calculate trend based on min/max prices (since we don't have previous prices)
-        const minPrice = parseFloat(item.min_price || '0')
-        const maxPrice = parseFloat(item.max_price || '0')
-        const modalPrice = parseFloat(item.modal_price || '0')
-        
-        // Simple trend calculation: if modal price is closer to max, it's trending up
-        const priceRange = maxPrice - minPrice
-        const modalPosition = modalPrice - minPrice
-        const trendPercentage = priceRange > 0 ? (modalPosition / priceRange) : 0.5
-        
-        let trend: "up" | "down" | "stable" = "stable"
-        let change = 0
-        
-        if (trendPercentage > 0.7) {
-          trend = "up"
-          change = Math.round(((modalPrice - minPrice) / minPrice) * 100 * 100) / 100
-        } else if (trendPercentage < 0.3) {
-          trend = "down"
-          change = -Math.round(((maxPrice - modalPrice) / maxPrice) * 100 * 100) / 100
-        }
-        
-        return {
-          state: item.state || 'Unknown State',
-          district: item.district || 'Unknown District',
-          market: item.market || 'Unknown Market',
-          commodity: item.commodity || 'Unknown Commodity',
-          variety: item.variety || 'Local',
-          grade: item.grade || 'FAQ',
-          arrival_date: item.arrival_date || new Date().toISOString().split('T')[0],
-          min_price: minPrice,
-          max_price: maxPrice,
-          modal_price: modalPrice,
-          trend,
-          change,
-          recommendation: generateRecommendation(change, modalPrice),
-        }
-      }).filter((item: { modal_price: number }) => item.modal_price > 0) // Filter out items with no valid price
-
-      console.log('Mapped Data:', data)
-      
-      if (data.length === 0) {
-        setError('No price data available for the selected filters. Try different crop or state combinations.')
-      }
-      
-      dbData = data
-      setMarketData(data.slice(0, 50)) // Limit to first 50 results for better performance
-      
+      setMarketData(transformedData);
     } catch (error) {
-      console.error('Fetch error:', error)
-      let errorMessage = 'Failed to fetch market data. Please try again.'
-      
-      if (error instanceof Error) {
-        if (error.message.includes('Failed to fetch')) {
-          errorMessage = 'Network error. Please check your internet connection and try again.'
-        } else if (error.message.includes('JSON')) {
-          errorMessage = 'Invalid data format received from API.'
-        } else {
-          errorMessage = error.message
-        }
-      }
-      
-      setError(errorMessage)
-      setMarketData([])
+      console.error('Error fetching market prices:', error);
+      setMarketData([]); // Reset to empty on error
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
-  // Generate recommendation based on price change
-  const generateRecommendation = (change: number, price: number): string => {
-    if (change > 5) {
-      return "Prices are rising significantly. Good time to sell if you have stock."
-    } else if (change > 2) {
-      return "Moderate price increase. Consider selling soon."
-    } else if (change < -5) {
-      return "Prices are falling. Consider holding if possible or diversify crops."
-    } else if (change < -2) {
-      return "Slight price decline. Monitor market trends closely."
-    } else {
-      return "Prices are stable. Good time for regular trading."
-    }
-  }
-
-  // Store data (simplified; replace with PostgreSQL logic)
-  const storeMarketData = async (data: MarketData[]) => {
-    dbData = data
-  }
-
-  // Load initial data on component mount
   useEffect(() => {
-    // Don't auto-fetch on mount, let user select options first
-  }, [])
+    fetchMarketData(); // Initial fetch
+
+    // Set up continuous polling
+    const interval = setInterval(async () => {
+      await fetchMarketData();
+    }, 5000); // Poll every 5 seconds
+
+    // Cleanup interval on component unmount
+    return () => clearInterval(interval);
+  }, []);
 
   const getTrendIcon = (trend: string) => {
     switch (trend) {
@@ -412,6 +519,7 @@ export function MarketAnalysis() {
             <div>• Compare prices across different markets and states</div>
             <div>• Use trend indicators to make informed selling decisions</div>
           </div>
+          
         </div>
       </CardContent>
     </Card>

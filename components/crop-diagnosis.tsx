@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-
 import { useState, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -39,40 +38,84 @@ export function CropDiagnosis() {
 
   const analyzeCrop = async () => {
     if (!selectedImage) return
-
     setIsAnalyzing(true)
+    setDiagnosis(null)
 
-    // Simulate AI analysis
-    setTimeout(() => {
-      // Mock diagnosis result
-      const mockDiagnosis: DiagnosisResult = {
-        disease: "Tomato Late Blight",
-        confidence: 92,
-        severity: "High",
-        treatment: [
-          "Apply copper-based fungicide immediately",
-          "Remove affected leaves and destroy them",
-          "Improve air circulation around plants",
-          "Reduce watering frequency",
-        ],
-        prevention: [
-          "Plant resistant varieties",
-          "Ensure proper spacing between plants",
-          "Water at soil level, not on leaves",
-          "Apply preventive fungicide spray",
-        ],
-        localRemedies: [
-          "Neem oil spray (10ml per liter water)",
-          "Baking soda solution (5g per liter)",
-          "Garlic and chili extract spray",
-          "Cow urine diluted 1:10 with water",
-        ],
+    try {
+      console.log("📤 Converting selected image to blob")
+      const blob = await fetch(selectedImage).then((res) => res.blob())
+
+      const formData = new FormData()
+      formData.append("image", blob, "crop.jpg")
+
+      console.log("📡 Sending request to Flask API...")
+      const response = await fetch("http://127.0.0.1:5000/predict", {
+        method: "POST",
+        body: formData,
+      })
+
+      console.log("✅ Response received from API:", response)
+
+      if (!response.ok) {
+        const errorText = await response.text()
+        throw new Error(`Server returned ${response.status}: ${errorText}`)
       }
 
-      setDiagnosis(mockDiagnosis)
+      const result = await response.json()
+      console.log("🧠 Diagnosis result received:", result)
+
+      const key = `${result.plant}___${result.disease}`
+
+      const diseaseInfo: Record<string, Omit<DiagnosisResult, "disease">> = {
+        "Tomato___Late_blight": {
+          confidence: 92,
+          severity: "High",
+          treatment: [
+            "Apply copper-based fungicide immediately",
+            "Remove affected leaves",
+            "Improve air circulation",
+            "Reduce watering frequency",
+          ],
+          prevention: [
+            "Plant resistant varieties",
+            "Ensure proper spacing",
+            "Water at soil level",
+            "Apply preventive fungicide",
+          ],
+          localRemedies: [
+            "Neem oil spray (10ml per liter)",
+            "Baking soda solution (5g per liter)",
+            "Garlic and chili extract",
+            "Cow urine diluted 1:10",
+          ],
+        },
+      }
+
+      const info = diseaseInfo[key] || {
+        confidence: 80,
+        severity: "Medium",
+        treatment: ["No specific treatment found."],
+        prevention: ["Ensure regular crop monitoring."],
+        localRemedies: ["Use neem oil spray as a preventive measure."],
+      }
+
+      setDiagnosis({
+        disease: result.disease,
+        confidence: info.confidence,
+        severity: info.severity,
+        treatment: info.treatment,
+        prevention: info.prevention,
+        localRemedies: info.localRemedies,
+      })
+    } catch (error) {
+      console.error("❌ Prediction request failed:", error)
+      alert("Failed to analyze image.")
+    } finally {
       setIsAnalyzing(false)
-    }, 3000)
+    }
   }
+
+
 
   const getSeverityColor = (severity: string) => {
     switch (severity) {
@@ -100,7 +143,6 @@ export function CropDiagnosis() {
       </CardHeader>
 
       <CardContent className="space-y-6">
-        {/* Image Upload Section */}
         <div className="space-y-4">
           <div className="flex space-x-2">
             <Button onClick={() => fileInputRef.current?.click()} variant="outline" className="flex-1">
@@ -112,27 +154,20 @@ export function CropDiagnosis() {
               Take Photo
             </Button>
           </div>
-
           <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
         </div>
 
-        {/* Image Preview */}
         {selectedImage && (
           <div className="space-y-4">
             <div className="relative w-full h-48 bg-gray-100 rounded-lg overflow-hidden">
-              <Image
-                src={selectedImage || "/placeholder.svg"}
-                alt="Crop image for diagnosis"
-                fill
-                className="object-cover"
-              />
+              <Image src={selectedImage || "/placeholder.svg"} alt="Crop image" fill className="object-cover" />
             </div>
 
             <Button onClick={analyzeCrop} disabled={isAnalyzing} className="w-full bg-green-600 hover:bg-green-700">
               {isAnalyzing ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Analyzing Image...
+                  Analyzing...
                 </>
               ) : (
                 <>
@@ -144,7 +179,6 @@ export function CropDiagnosis() {
           </div>
         )}
 
-        {/* Diagnosis Results */}
         {diagnosis && (
           <div className="space-y-4 border-t pt-4">
             <div className="flex items-center justify-between">
@@ -157,7 +191,7 @@ export function CropDiagnosis() {
                 <AlertTriangle className="h-5 w-5 text-red-600" />
                 <h4 className="font-semibold text-red-800">{diagnosis.disease}</h4>
               </div>
-              <p className="text-sm text-red-700">Confidence: {diagnosis.confidence}% | Immediate action required</p>
+              <p className="text-sm text-red-700">Confidence: {diagnosis.confidence}%</p>
             </div>
 
             <div className="space-y-4">
@@ -176,7 +210,7 @@ export function CropDiagnosis() {
               <Separator />
 
               <div>
-                <h4 className="font-semibold text-gray-800 mb-2">🌿 Local & Affordable Remedies</h4>
+                <h4 className="font-semibold text-gray-800 mb-2">🌿 Local Remedies</h4>
                 <ul className="space-y-1 text-sm text-gray-600">
                   {diagnosis.localRemedies.map((item, index) => (
                     <li key={index} className="flex items-start space-x-2">
@@ -190,7 +224,7 @@ export function CropDiagnosis() {
               <Separator />
 
               <div>
-                <h4 className="font-semibold text-gray-800 mb-2">🛡️ Future Prevention</h4>
+                <h4 className="font-semibold text-gray-800 mb-2">🛡️ Prevention</h4>
                 <ul className="space-y-1 text-sm text-gray-600">
                   {diagnosis.prevention.map((item, index) => (
                     <li key={index} className="flex items-start space-x-2">
@@ -204,12 +238,11 @@ export function CropDiagnosis() {
           </div>
         )}
 
-        {/* Help Text */}
         {!selectedImage && (
           <div className="text-center text-gray-500 text-sm bg-gray-50 p-4 rounded-lg">
             <Camera className="h-8 w-8 mx-auto mb-2 text-gray-400" />
             <p>Upload a clear photo of the affected plant parts</p>
-            <p className="text-xs mt-1">Supported formats: JPG, PNG, HEIC</p>
+            <p className="text-xs mt-1">Supported formats: JPG, PNG</p>
           </div>
         )}
       </CardContent>
